@@ -13,7 +13,7 @@ RSpec.describe "Users", type: :system do
       expect(page).to have_content('新規登録')
       # 新規登録ページへ遷移する
       visit new_user_registration_path
-      # ユーザー情報を入力する
+      # 正しいユーザー情報を入力する
       fill_in 'Nickname', with: @user.nickname
       fill_in 'Email', with: @user.email
       fill_in 'Password', with: @user.password
@@ -53,6 +53,55 @@ RSpec.describe "Users", type: :system do
       }.to change { User.count}.by(0)
       # 新規登録ページへ戻されることを確認する
       expect(current_path).to eq('/users')
+    end
+  end
+end
+
+RSpec.describe 'ログイン', type: :system do
+  before do
+    @user = FactoryBot.create(:user)
+  end
+
+  context 'ログインできるとき' do
+    it '保存されているユーザーの情報と合致すればログインできる' do
+      # トップページに遷移する
+      visit root_path
+      # トップページにログインボタンがあることを確認する
+      expect(page).to have_content("ログイン")
+      # ログインページに遷移する
+      visit new_user_session_path
+      # 正しいユーザー情報を入力する
+      fill_in 'Email', with: @user.email
+      fill_in 'Password', with: @user.password
+      # ログインボタンを押す
+      find('input[name="commit"]').click
+      # トップページに遷移することを確認する
+      expect(current_path).to eq (root_path)
+      # カーソルを合わせるとログアウトボタンが表示されることを確認する
+      expect(
+        find('.user_nav').find('span').hover
+      ).to have_content('ログアウト')
+      # 新規登録ボタンやログインボタンが表示されていないことを確認する
+      expect(page).to have_no_content("新規登録")
+      expect(page).to have_no_content("ログイン")
+    end
+  end
+
+  context 'ログインできないとき' do
+    it '保存されているユーザーの情報と合致しないとログインできない' do
+      # トップページに遷移する
+      visit root_path
+      # トップページにログインボタンがあることを確認する
+      expect(page).to have_content('ログイン')
+      # ログインページに遷移する
+      visit new_user_session_path
+      # ユーザー情報を入力する
+      fill_in 'Email', with: ""
+      fill_in 'Password', with: ""
+      # ログインボタンを押す
+      find('input[name="commit"]').click
+      # ログインページへ戻されることを確認する
+      expect(current_path).to eq ('/users/sign_in')
     end
   end
 end
