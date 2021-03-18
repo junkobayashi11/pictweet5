@@ -9,11 +9,7 @@ RSpec.describe "Comments", type: :system do
   context 'コメント投稿できるとき' do
     it 'ログインしたユーザーはツイート詳細ページでコメント投稿できる' do
       # ログインする
-      visit new_user_session_path
-      fill_in 'Email', with: @tweet.user.email
-      fill_in 'Password', with: @tweet.user.password
-      find('input[name="commit"]').click
-      expect(current_path).to eq(root_path)
+      sign_in(@tweet.user)
       # ツイート詳細ページに遷移する
       visit tweet_path(@tweet.id)
       # フォームに情報を入力する
